@@ -99,6 +99,8 @@ if not new_dividends_yf.empty:
             data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
         )
         logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
+else:
+    logging.info("No new dividends found today.")
 
 # --- Update Google Sheet ---
 try:
