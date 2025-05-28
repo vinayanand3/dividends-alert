@@ -74,10 +74,21 @@ yag = yagmail.SMTP(ALERT_EMAIL, APP_PASSWORD)
 
 for _, row in new_dividends_yf.iterrows():
     msg = f"{row['Ticker']} has a new dividend: {row['Dividends']} on {row['Date']}"
-    yag.send(to=ALERT_EMAIL, subject=f"Dividend Alert: {row['Ticker']}", contents=msg)
-    requests.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-                  data={"chat_id": TELEGRAM_CHAT_ID, "text": msg})
+    recipient_list = ALERT_EMAIL.split(",")
+    
+    yag.send(
+        to=recipient_list,
+        subject=f"Dividend Alert: {row['Ticker']}",
+        contents=msg
+    )
+
+    requests.post(
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+        data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
+    )
+    
     logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
+
 
 # --- Update Google Sheet ---
 try:
