@@ -29,6 +29,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GOOGLE_SHEET_NAME: "Dividend Tracker"
+          GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
           SERVICE_ACCOUNT_FILE_JSON: ${{ secrets.SERVICE_ACCOUNT_FILE_JSON }}
         run: |
           echo "$SERVICE_ACCOUNT_FILE_JSON" > credentials.json
