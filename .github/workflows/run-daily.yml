@@ -1,0 +1,35 @@
+name: Daily Dividend Alert
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Runs at 09:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SERVICE_ACCOUNT_FILE: ${{ secrets.SERVICE_ACCOUNT_FILE_JSON }}
+          GOOGLE_SHEET_NAME: "Dividend Tracker"
+        run: |
+          echo "$SERVICE_ACCOUNT_FILE" > credentials.json
+          export SERVICE_ACCOUNT_FILE=credentials.json
+          python dividends_alert.py 
