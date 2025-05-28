@@ -2,7 +2,8 @@ import os
 import pandas as pd
 import yfinance as yf
 from datetime import datetime
-import yagmail
+import smtplib
+from email.message import EmailMessage
 import requests
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -19,6 +20,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
 GOOGLE_SHEET_NAME = os.getenv("GOOGLE_SHEET_NAME")
+GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 TICKERS = ['MSTY', 'PLTY']
 DATA_DIR = 'dividend_tracker'
 LOG_DIR = 'logs'
@@ -70,15 +72,25 @@ if previous_yf_file:
     new_dividends_yf = merged[merged['_merge'] == 'left_only'][['Date', 'Dividends', 'Ticker']]
     logging.info(f"Compared with previous data: {previous_yf_file}")
 
+# --- Email Utility ---
+def send_email(subject, body, to_list):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = ", ".join(to_list)
+    msg.set_content(body)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(SENDER_EMAIL, APP_PASSWORD)
+        smtp.send_message(msg)
+
 # --- Send Alerts ---
-yag = yagmail.SMTP(user=SENDER_EMAIL, password=APP_PASSWORD)
 recipient_list = ALERT_EMAIL.split(",")
-GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
 if not new_dividends_yf.empty:
     for _, row in new_dividends_yf.iterrows():
         msg = f"{row['Ticker']} has a new dividend: {row['Dividends']} on {row['Date']}\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
-        yag.send(to=recipient_list, subject=f"Dividend Alert: {row['Ticker']}", contents=msg)
+        send_email(subject=f"Dividend Alert: {row['Ticker']}", body=msg, to_list=recipient_list)
         requests.post(
             f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
             data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
@@ -86,13 +98,12 @@ if not new_dividends_yf.empty:
         logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
 else:
     msg = f"✅ Dividend alert bot ran successfully. No new dividends found today.\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
-    yag.send(to=recipient_list, subject="Daily Dividend Check ✅", contents=msg)
+    send_email(subject="Daily Dividend Check ✅", body=msg, to_list=recipient_list)
     requests.post(
         f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
         data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
     )
     logging.info("Sent daily heartbeat alert (no new dividends).")
-
 
 # --- Update Google Sheet ---
 try:
