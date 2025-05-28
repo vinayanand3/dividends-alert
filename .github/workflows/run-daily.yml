@@ -2,8 +2,8 @@ name: Daily Dividend Alert
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # Runs at 09:00 UTC daily
-  workflow_dispatch:
+    - cron: '0 9 * * *'  # Every day at 09:00 UTC
+  workflow_dispatch:     # Manual trigger option
 
 jobs:
   run-script:
@@ -21,15 +21,15 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run script
+      - name: Run dividend script
         env:
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          SERVICE_ACCOUNT_FILE: ${{ secrets.SERVICE_ACCOUNT_FILE_JSON }}
           GOOGLE_SHEET_NAME: "Dividend Tracker"
+          SERVICE_ACCOUNT_FILE_JSON: ${{ secrets.SERVICE_ACCOUNT_FILE_JSON }}
         run: |
-          echo "$SERVICE_ACCOUNT_FILE" > credentials.json
+          echo "$SERVICE_ACCOUNT_FILE_JSON" > credentials.json
           export SERVICE_ACCOUNT_FILE=credentials.json
           python dividends_alert.py 
