@@ -71,7 +71,7 @@ if previous_yf_file:
     logging.info(f"Compared with previous data: {previous_yf_file}")
 
 # --- Send Alerts ---
-yag = yagmail.SMTP(SENDER_EMAIL, APP_PASSWORD)
+yag = yagmail.SMTP(user=SENDER_EMAIL, password=APP_PASSWORD)
 recipient_list = ALERT_EMAIL.split(",")
 GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
