@@ -12,6 +12,7 @@ import logging
 # --- Load .env secrets ---
 load_dotenv()
 
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 ALERT_EMAIL = os.getenv("ALERT_EMAIL")
 APP_PASSWORD = os.getenv("APP_PASSWORD")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -70,7 +71,7 @@ if previous_yf_file:
     logging.info(f"Compared with previous data: {previous_yf_file}")
 
 # --- Send Alerts ---
-yag = yagmail.SMTP(ALERT_EMAIL, APP_PASSWORD)
+yag = yagmail.SMTP(SENDER_EMAIL, APP_PASSWORD)
 recipient_list = ALERT_EMAIL.split(",")
 GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
