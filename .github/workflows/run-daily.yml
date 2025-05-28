@@ -23,6 +23,7 @@ jobs:
 
       - name: Run dividend script
         env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
