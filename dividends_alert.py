@@ -99,14 +99,6 @@ if not new_dividends_yf.empty:
             data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
         )
         logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
-else:
-    msg = f"✅ Dividend alert bot ran successfully. No new dividends found today.\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
-    send_email(subject="Daily Dividend Check ✅", body=msg, to_list=recipient_list)
-    requests.post(
-        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-        data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
-    )
-    logging.info("Sent daily heartbeat alert (no new dividends).")
 
 # --- Update Google Sheet ---
 try:
