@@ -72,10 +72,11 @@ if previous_yf_file:
 # --- Send Alerts ---
 yag = yagmail.SMTP(ALERT_EMAIL, APP_PASSWORD)
 recipient_list = ALERT_EMAIL.split(",")
+GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
 if not new_dividends_yf.empty:
     for _, row in new_dividends_yf.iterrows():
-        msg = f"{row['Ticker']} has a new dividend: {row['Dividends']} on {row['Date']}"
+        msg = f"{row['Ticker']} has a new dividend: {row['Dividends']} on {row['Date']}\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
         yag.send(to=recipient_list, subject=f"Dividend Alert: {row['Ticker']}", contents=msg)
         requests.post(
             f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
@@ -83,7 +84,7 @@ if not new_dividends_yf.empty:
         )
         logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
 else:
-    msg = "✅ Dividend alert bot ran successfully. No new dividends found today."
+    msg = f"✅ Dividend alert bot ran successfully. No new dividends found today.\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
     yag.send(to=recipient_list, subject="Daily Dividend Check ✅", contents=msg)
     requests.post(
         f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
