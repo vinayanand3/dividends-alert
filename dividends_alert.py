@@ -86,6 +86,9 @@ def send_email(subject, body, to_list):
 
 # --- Send Alerts ---
 recipient_list = ALERT_EMAIL.split(",")
+if not SENDER_EMAIL or not APP_PASSWORD:
+    logging.error("Missing SENDER_EMAIL or APP_PASSWORD! Email will fail to send.")
+
 
 if not new_dividends_yf.empty:
     for _, row in new_dividends_yf.iterrows():
