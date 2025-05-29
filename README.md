@@ -18,6 +18,7 @@ This project automatically tracks dividend payments for specified stocks and sen
    - `APP_PASSWORD`: Your email app password
    - `TELEGRAM_BOT_TOKEN`: Your Telegram bot token
    - `TELEGRAM_CHAT_ID`: Your Telegram chat ID
+   - `SENDER_EMAIL`: Your email address
    - `SERVICE_ACCOUNT_FILE_JSON`: Your Google Service Account JSON credentials
 
 ## Configuration
