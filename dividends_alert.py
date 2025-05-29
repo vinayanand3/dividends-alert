@@ -99,27 +99,21 @@ if not new_dividends_yf.empty:
             data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
         )
         logging.info(f"Sent alert for {row['Ticker']} - {row['Dividends']} on {row['Date']}")
+
+    # --- Update Google Sheet ---
+    try:
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_ACCOUNT_FILE, scope)
+        client = gspread.authorize(creds)
+    
+        sheet = client.open(GOOGLE_SHEET_NAME).sheet1
+        sheet.clear()
+        rows = [df_yf_today.columns.tolist()] + df_yf_today.astype(str).values.tolist()
+        sheet.update(rows)
+        logging.info(f"Updated Google Sheet: {GOOGLE_SHEET_NAME}")
+    except Exception as e:
+        logging.error(f"Error updating Google Sheet: {e}")
 else:
-    msg = f"✅ Dividend alert bot ran successfully. No new dividends found today.\n\n📊 View Sheet: {GOOGLE_SHEET_URL}"
-    send_email(subject="Daily Dividend Check ✅", body=msg, to_list=recipient_list)
-    requests.post(
-        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-        data={"chat_id": TELEGRAM_CHAT_ID, "text": msg}
-    )
-    logging.info("Sent daily heartbeat alert (no new dividends).")
-
-# --- Update Google Sheet ---
-try:
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_ACCOUNT_FILE, scope)
-    client = gspread.authorize(creds)
-
-    sheet = client.open(GOOGLE_SHEET_NAME).sheet1
-    sheet.clear()
-    rows = [df_yf_today.columns.tolist()] + df_yf_today.astype(str).values.tolist()
-    sheet.update(rows)
-    logging.info(f"Updated Google Sheet: {GOOGLE_SHEET_NAME}")
-except Exception as e:
-    logging.error(f"Error updating Google Sheet: {e}")
+    logging.info("No new dividends found today.")
 
 logging.info("------ Script finished ------\n")
