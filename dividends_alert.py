@@ -74,6 +74,14 @@ if previous_yf_file:
 
 # --- Email Utility ---
 def send_email(subject, body, to_list):
+    if not SENDER_EMAIL or not APP_PASSWORD:
+        logging.error("Missing SENDER_EMAIL or APP_PASSWORD! Skipping email.")
+        return
+
+    if not to_list:
+        logging.error("No ALERT_EMAIL configured. Skipping email.")
+        return
+
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = SENDER_EMAIL
@@ -85,9 +93,12 @@ def send_email(subject, body, to_list):
         smtp.send_message(msg)
 
 # --- Send Alerts ---
-recipient_list = ALERT_EMAIL.split(",")
+recipient_list = [email.strip() for email in ALERT_EMAIL.split(",")] if ALERT_EMAIL else []
+if not recipient_list:
+    logging.warning("ALERT_EMAIL not set; email notifications will be skipped.")
+
 if not SENDER_EMAIL or not APP_PASSWORD:
-    logging.error("Missing SENDER_EMAIL or APP_PASSWORD! Email will fail to send.")
+    logging.warning("Email credentials are missing; email notifications will fail.")
 
 
 if not new_dividends_yf.empty:
